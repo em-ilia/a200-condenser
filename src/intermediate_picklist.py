@@ -2,8 +2,10 @@
 from typing import Union, Tuple, List
 import csv
 import io
+import sys
 
 # Should get the `type` keyword in python 3.12
+# (Type, Row, Col, Row, Col)
 TransferList = List[Tuple[str, int, int, int, int]]
 
 
@@ -38,6 +40,9 @@ def generate_intermediate_picklist(wells: [str]
         # As a result, we have to leave some wells empty.
         while len(transfers) % 4 != 0:
             transfers.append(None)
+
+    if len(transfers) > 96:
+        sys.exit("Cannot fit all wells in a single 96 well plate")
 
     return transfers_to_picklist(transfers)
 
@@ -116,7 +121,7 @@ def transfers_to_picklist(transfers: [Union[Tuple[str, int, int], None]]
 
     # Conversion function yields well coordinates given
     # the index of the transfer.
-    def order_to_coord(i): return (i % 12, i // 12)
+    def order_to_coord(i): return (i % 8, i // 8)
 
     output = []
     for (i, transfer) in enumerate(transfers):

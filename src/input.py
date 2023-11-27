@@ -11,8 +11,6 @@ def input_main(args: ArgsStruct) -> [str]:
 
     if args.input_col_name not in rows[0]:
         sys.exit("Specified column could not be found in the provided CSV file")
-    if len(rows) != 96:
-        sys.exit("Insufficient number of rows in the provided CSV file")
 
     values = list(map(lambda x: x[args.input_col_name], rows))
 
