@@ -19,7 +19,6 @@ def main():
 
     picklist = intermediate_picklist.generate_intermediate_picklist(wells)
 
-    print(args.output_type)
     match args.output_type:
         case "a200":
             print(a200_string.transferlist_to_a200_strings(picklist))
@@ -32,7 +31,8 @@ def main():
 @dataclass
 class ArgsStruct:
     input: argparse.FileType
-    input_col_name: str
+    type_col_name: str
+    coord_col_name: str
     output_type: str
 
 
@@ -48,10 +48,15 @@ def process_arguments():
                         nargs='?',
                         help='File to read as an input plate; should be CSV.',
                         )
-    parser.add_argument('--colname',
+    parser.add_argument('--colname-type',
                         type=str,
-                        required=False,
-                        default="reactionType"  # I really have no idea what should be here!
+                        required=True,
+                        help='Column in which type is found'
+                        )
+    parser.add_argument('--colname-coord',
+                        type=str,
+                        required=True,
+                        help='Column in which source coordinate is found'
                         )
     parser.add_argument('-t', '--output-type',
                         choices=['a200', 'picklist'],
@@ -63,7 +68,8 @@ def process_arguments():
         sys.exit(('An input file is needed either'
                  ' as a path or piped in through stdin'))
 
-    return ArgsStruct(input=args.inputfile, input_col_name=args.colname,
+    return ArgsStruct(input=args.inputfile, type_col_name=args.colname_type,
+                      coord_col_name=args.colname_coord,
                       output_type=args.output_type)
 
 

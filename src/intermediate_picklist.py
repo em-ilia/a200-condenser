@@ -3,13 +3,16 @@ from typing import Union, Tuple, List
 import csv
 import io
 import sys
+import re
 
 # Should get the `type` keyword in python 3.12
 # (Type, Row, Col, Row, Col)
 TransferList = List[Tuple[str, int, int, int, int]]
 
+_EXCEL_REGEX = re.compile(r"([A-Z]+)(\d+)")
 
-def generate_intermediate_picklist(wells: [str]
+
+def generate_intermediate_picklist(wells: [(str, str)]
                                    ) -> TransferList:
     """ Takes a list of wells and compacts them
 
@@ -98,18 +101,36 @@ def coords_to_excel_format(coords: (int, int)) -> str:
     return row + str(col)
 
 
-def convert_values_to_triple(wells: [str]) -> [(str, int, int)]:
-    """Take a list of wells and return a list with attached coordinates.
-
-    This assumes, like everything else in this script, a 96 well plate.
-    This means that for well n (with n < 96),
-    row(n) = n // 12 (integer division s.t. 8//12 == 0, 13//12 == 1, etc.)
-    col(n) = n % 12
-    Note that these coordinates will be zero indexed.
+def convert_values_to_triple(wells: [(str, str)]) -> [(str, int, int)]:
+    """Reads the excel format coordinate and converts
+    to row,col.
     """
+    def letters_to_num(letters: str) -> int:
+        # Stolen with love from `plate-tool` (`transfer_menu.rs`)
+        num = 0
+        for (i, letter) in enumerate(reversed(letters.upper())):
+            n = ord(letter)
+            if n not in range(65, 91):
+                sys.exit("Error parsing coordinates")
+            num += pow(26, i) * (n - 64)
+
+        return num
+
+    def excel_to_coords(value: str) -> (int, int):
+        # Adapted from `plate-tool` (`transfer_menu.rs`)
+
+        captures = _EXCEL_REGEX.match(value)
+        if captures is not None and len(captures.groups()) == 2:
+            letters = captures.groups()[0]
+            numbers = captures.groups()[1]
+
+            return (letters_to_num(letters), numbers)
+        else:
+            sys.exit("Error parsing coordinates")
+
     return list(
         # In lambda below, `x` is a tuple (index, value)
-        map(lambda x: (x[1], x[0] // 12, x[0] % 12), enumerate(wells))
+        map(lambda x: (x[0], *excel_to_coords(x[1])), wells)
     )
 
 
