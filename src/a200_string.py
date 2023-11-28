@@ -33,20 +33,17 @@ def transferlist_to_a200_strings(tl: TransferList) -> [str]:
             # and or-assign; this sets the bit to one.
             grid[bit_number // 8] |= 1 << (bit_number % 8)
 
-        out_strs = []
-        for row in range(4):
-            # Grab the first byte and move it over 4 bits
-            # so that we have 0bNNNNNNNN0000, then
-            # grab the second byte and truncate the 4 least significant bits.
-            # Then or these to get a 12 bit result.
-            n = grid[0] << 4 | (grid[1] >> 4)
-            out_strs.append(f'{n:03x}')
-        for row in range(4):
-            # Grab the second bit and mask with 0b00001111 to get the four least
-            # significant bits, then shift 8 bits to the left and
-            # or with the third bit.
-            n = (grid[1] & 0x0f) << 8 | grid[2]
-            out_strs.append(f'{n:03x}')
+        # Grab the first byte and move it over 4 bits
+        # so that we have 0bNNNNNNNN0000, then
+        # grab the second byte and truncate the 4 least significant bits.
+        # Then or these to get a 12 bit result.
+        n1 = grid[0] << 4 | (grid[1] >> 4)
+        # Grab the second bit and mask with 0b00001111 to get the four least
+        # significant bits, then shift 8 bits to the left and
+        # or with the third bit.
+        n2 = (grid[1] & 0x0f) << 8 | grid[2]
+
+        out_strs = [f'{n1:03x}'] * 4 + [f'{n2:03x}'] * 4
 
         out.append(','.join(out_strs))
 
