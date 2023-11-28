@@ -116,7 +116,7 @@ def convert_values_to_triple(wells: [(str, str)]) -> [(str, int, int)]:
             letters = captures.groups()[0]
             numbers = captures.groups()[1]
 
-            return (letters_to_num(letters), numbers)
+            return (letters_to_num(letters), int(numbers))
         else:
             sys.exit("Error parsing coordinates")
 
