@@ -148,7 +148,8 @@ def convert_values_to_triple(wells: [(str, str)]) -> [(str, int, int)]:
             letters = captures.groups()[0]
             numbers = captures.groups()[1]
 
-            return (letters_to_num(letters), int(numbers))
+            # Subtract by one to switch to zero-indexing internally
+            return (letters_to_num(letters) - 1, int(numbers) - 1)
         else:
             sys.exit("Error parsing coordinates")
 
