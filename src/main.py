@@ -25,6 +25,8 @@ def main():
                 print(string)
         case "picklist":
             print(intermediate_picklist.transferlist_to_csv(picklist))
+        case "overlap":
+            print(intermediate_picklist.find_overlapping_wells(wells))
         case _:
             sys.exit("Unreachable case reached.")
 
@@ -60,7 +62,7 @@ def process_arguments():
                         help='Column in which source coordinate is found'
                         )
     parser.add_argument('-t', '--output-type',
-                        choices=['a200', 'picklist'],
+                        choices=['a200', 'picklist', 'overlap'],
                         default='a200')
 
     args = parser.parse_args()

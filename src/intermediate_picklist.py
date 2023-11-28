@@ -4,6 +4,8 @@ import csv
 import io
 import sys
 import re
+from operator import itemgetter
+from itertools import accumulate
 
 # Should get the `type` keyword in python 3.12
 # (Type, Row, Col, Row, Col)
@@ -40,6 +42,36 @@ def generate_intermediate_picklist(wells: [(str, str)]
         sys.exit("Cannot fit all wells in a single 96 well plate")
 
     return transfers_to_picklist(transfers)
+
+
+def find_overlapping_wells(wells: [(str, str)]) -> [str]:
+    triples = convert_values_to_triple(wells)
+
+    remainders = [len([x for x in triples if x[0] == type]) % 4
+                  for type in ['A', 'B', 'C', 'D']]
+    # Accumulate offset, but of course this is still mod 4
+    remainders = [x % 4 for x in accumulate(remainders)]
+
+    sorted_wells = []
+    for type in ['A', 'B', 'C', 'D']:
+        filtered = [x for x in triples if x[0] == type]
+        # `sorted()` is stable so sequential sorts are valid
+        s1 = sorted(filtered, key=itemgetter(2))  # 2nd sort is by col
+        s2 = sorted(s1, key=itemgetter(1))  # 1st sort is by row
+        sorted_wells.append(s2)
+
+    overlaps = []
+    for i in range(3):
+        overlap = []
+        # Add from the ending type, just the overflowing well
+        overlap.extend(sorted_wells[i][-remainders[i]:])
+        # Add from the starting type, the wells partially used block
+        overlap.extend(sorted_wells[i+1][:4 - remainders[i]])
+        overlaps.append([coords_to_excel_format(x[1:]) for x in overlap])
+
+    # We only want the C to D overlap, but all are available
+    # return overlaps
+    return overlaps[2]
 
 
 def transferlist_to_csv(tl: TransferList) -> str:
