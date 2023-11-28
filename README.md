@@ -33,3 +33,40 @@ The picklist is given as a CSV, with headers, which is very minimal by default;
 you'll likely want some post processing.
 
 The A200 string is printed with each string on its own line.
+
+## Commentary too long for the source files
+I've done my best to document the source files,
+but there are sections that might need to be modified depending on usage.
+
+### `main.py`
+All input is handled by `argparse`, which is part of the Python standard library.
+If you were always going to be running this the same way,
+it would of course be possible to pass all arguments and read from `argv`.
+
+The *only* output comes from the `print` statements in the match arms of `main()`.
+If instead you needed to redirect this data to a file, you could do so here.
+
+### `input.py`
+Not much happens in this file, just CSV reading.
+As long as `input_main()` returns a list of `(Type, Coordinate)` tuples,
+it can be changed.
+
+### `intermediate_picklist.py`
+A few of the functions in this file were ripped from [plate-tool](https://github.com/em-ilia/plate-tool/blob/main/src/components/transfer_menu.rs)
+and translated into Python.
+A limitation carried over from that implementation is that `coords_to_excel_format` would roll over if a row greater than `ZZ` was used;
+there is no such microplate in existence so this is a nonissue.
+
+`transfers_to_picklist()` exists pretty much only to tack coordinates on to the existing tuple.
+
+`convert_values_to_triple()` handles conversion of excel format (`B7`) coordinates to numbers.
+
+You would be most likely to modify `transferlist_to_csv`.
+If CSV modification outside of the script is not possible for you,
+this is where the CSV is constructed.
+
+### `a200_string.py`
+This file really does very little.
+The bit operations look complicated, but if you look at the alternative implementation at the bottom of the file,
+it's clear that not much is going on.
+We just need to keep track of if any well in a 4x1 block is being transferred to by the A200.
