@@ -3,7 +3,13 @@
 This script takes a picklist and outputs one of three things:
 1. An intermediate picklist to sort/condense a plate into an A200 compatible plate
 2. The weird code the A200 wants
-3. A list of wells where overlap occurred (not implemented yet)
+3. A list of wells where overlap occurred
+
+<figure>
+<img src="https://github.com/em-ilia/a200-condenser/assets/23224059/359317e2-d344-486f-b926-46dd44f14dad" width=100% alt="Image showing picklist output visualization">
+  <p align="center">The picklist output visualized using <a href="https://github.com/em-ilia/plate-tool">plate-tool</a></p>
+</figure>
+
 
 ## Input/Output Formats
 ### Command-line options
@@ -13,7 +19,7 @@ This script takes a picklist and outputs one of three things:
 - `inputfile`: Either a path to a picklist file (csv) or `-` if you want to pipe in through stdin (no idea if that works on Windows).
 
 Optionally provide:
-- `-t {a200,picklist}`: This allows you to select which output you want. It defaults to `a200` for the 2nd output listed above.
+- `-t {a200,picklist,overlap}`: This allows you to select which output you want. It defaults to `a200` for the 2nd output listed above.
 
 ### Input files
 As aforementioned, all that's required is for your picklist to have a column specifying a type
