@@ -45,19 +45,19 @@ def generate_intermediate_picklist(wells: [(str, str)]
 
 
 def find_overlapping_wells(wells: [(str, str)]) -> [str]:
-    triples = convert_values_to_triple(wells)
+    picklist = generate_intermediate_picklist(wells)
 
-    remainders = [len([x for x in triples if x[0] == type]) % 4
+    remainders = [len([x for x in picklist if x[0] == type]) % 4
                   for type in ['A', 'B', 'C', 'D']]
     # Accumulate offset, but of course this is still mod 4
     remainders = [x % 4 for x in accumulate(remainders)]
 
     sorted_wells = []
     for type in ['A', 'B', 'C', 'D']:
-        filtered = [x for x in triples if x[0] == type]
+        filtered = [x for x in picklist if x[0] == type]
         # `sorted()` is stable so sequential sorts are valid
-        s1 = sorted(filtered, key=itemgetter(2))  # 2nd sort is by col
-        s2 = sorted(s1, key=itemgetter(1))  # 1st sort is by row
+        s1 = sorted(filtered, key=itemgetter(3))  # 2nd sort is by col
+        s2 = sorted(s1, key=itemgetter(4))  # 1st sort is by row
         sorted_wells.append(s2)
 
     overlaps = []
@@ -67,7 +67,8 @@ def find_overlapping_wells(wells: [(str, str)]) -> [str]:
         overlap.extend(sorted_wells[i][-remainders[i]:])
         # Add from the starting type, the wells partially used block
         overlap.extend(sorted_wells[i+1][:4 - remainders[i]])
-        overlaps.append([coords_to_excel_format(x[1:]) for x in overlap])
+        overlaps.append([coords_to_excel_format(x[3:]) for x in overlap])
+        # overlaps.append([x for x in overlap])
 
     # We only want the C to D overlap, but all are available
     # return overlaps
