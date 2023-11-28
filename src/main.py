@@ -21,7 +21,8 @@ def main():
 
     match args.output_type:
         case "a200":
-            print(a200_string.transferlist_to_a200_strings(picklist))
+            for string in a200_string.transferlist_to_a200_strings(picklist):
+                print(string)
         case "picklist":
             print(intermediate_picklist.transferlist_to_csv(picklist))
         case _:
