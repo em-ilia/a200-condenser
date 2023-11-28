@@ -19,9 +19,6 @@ def generate_intermediate_picklist(wells: [(str, str)]
     The return type of this function is not immediately useful.
     It should be passed to either `transferlist_to_csv` or
     a function in the `a200_string` module.
-
-    Packing is achieved by filling columns, skipping space
-    when necessary (see the while loop near the end of the function).
     """
     triples = convert_values_to_triple(wells)
 
@@ -38,11 +35,6 @@ def generate_intermediate_picklist(wells: [(str, str)]
         # Add all of these wells into the transfer list
         for filtered_well in filtered:
             transfers.append(filtered_well)
-
-        # The a200 *must* dispense into blocks of four.
-        # As a result, we have to leave some wells empty.
-        while len(transfers) % 4 != 0:
-            transfers.append(None)
 
     if len(transfers) > 96:
         sys.exit("Cannot fit all wells in a single 96 well plate")
