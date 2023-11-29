@@ -26,12 +26,13 @@ def transferlist_to_a200_strings(tl: TransferList) -> [str]:
             col = well[4]
 
             # Map coordinate to the 2x12 block
-            bit_number = col + (row // 4) * 8
+            bit_number = col + (row // 4) * 12
 
             # First, access the byte where the bit is located
             # Then, left shift 1 to the appropriate position in the bytes
             # and or-assign; this sets the bit to one.
-            grid[bit_number // 8] |= 1 << (bit_number % 8)
+            # We subtract from 7 so that the order of the bits is reversed
+            grid[bit_number // 8] |= 1 << (7 - bit_number % 8)
 
         grids.append(grid)
 
