@@ -7,7 +7,7 @@ from intermediate_picklist import TransferList
 
 
 def transferlist_to_a200_strings(tl: TransferList) -> [str]:
-    out = []
+    grids = []
     for type in ['A', 'B', 'C', 'D']:
         filtered = list(filter(lambda x: x[0] == type, tl))
 
@@ -33,24 +33,35 @@ def transferlist_to_a200_strings(tl: TransferList) -> [str]:
             # and or-assign; this sets the bit to one.
             grid[bit_number // 8] |= 1 << (bit_number % 8)
 
-        # Grab the first byte and move it over 4 bits
-        # so that we have 0bNNNNNNNN0000, then
-        # grab the second byte and truncate the 4 least significant bits.
-        # Then or these to get a 12 bit result.
-        n1 = grid[0] << 4 | (grid[1] >> 4)
-        # Grab the second bit and mask with 0b00001111 to get the four least
-        # significant bits, then shift 8 bits to the left and
-        # or with the third bit.
-        n2 = (grid[1] & 0x0f) << 8 | grid[2]
+        grids.append(grid)
 
-        out_strs = [f'{n1:03x}'] * 4 + [f'{n2:03x}'] * 4
+    # We want to combine the A,B,C grids via bitwise or:
+    abc_grid = bytearray(
+        [x | y | z for (x, y, z) in zip(grids[0], grids[1], grids[2])])
 
-        out.append(','.join(out_strs))
+    # If your plate is full (i.e. every well will then be touched by the a200)
+    # then you should be able to verify that A|B|C|D is 8 x 0xFFF
 
-    return out
+    return [bytes_to_a200_string(abc_grid), bytes_to_a200_string(grids[3])]
 
 
-"""Alternative (psuedocode) implementation for above function
+def bytes_to_a200_string(b: bytearray) -> str:
+    # Grab the first byte and move it over 4 bits
+    # so that we have 0bNNNNNNNN0000, then
+    # grab the second byte and truncate the 4 least significant bits.
+    # Then or these to get a 12 bit result.
+    n1 = b[0] << 4 | (b[1] >> 4)
+    # Grab the second bit and mask with 0b00001111 to get the four least
+    # significant bits, then shift 8 bits to the left and
+    # or with the third bit.
+    n2 = (b[1] & 0x0f) << 8 | b[2]
+
+    strs = [f'{n1:03x}'] * 4 + [f'{n2:03x}'] * 4
+
+    return ','.join(strs)
+
+
+"""Alternative (psuedocode) implementation for above functions
 
 ...
 grid = [False] * 24
