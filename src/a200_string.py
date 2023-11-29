@@ -66,3 +66,15 @@ for well in filtered:
 n = bool_array_to_int(grid[0:13])
 ...
 """
+
+
+def pretty_print_a200_string(s: str) -> None:
+    # First convert the string back into bits and all
+    # First split s at commas
+    # Then convert each string into an int
+    # The get the binary representation as a string
+    # Then convert the string into a list of characters
+    cols = [format(int(x, base=16), '012b') for x in s.split(',')]
+
+    for row in cols:
+        print(row)
