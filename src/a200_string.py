@@ -14,7 +14,7 @@ def transferlist_to_a200_strings(tl: TransferList) -> [str]:
         # We can look at the plate as a 2x12 grid,
         # representable in 3 bytes
 
-        grid = bytearray(3)
+        grid = 0
 
         # If you look at this approach and say,
         # "this is too complicated", I would agree.
@@ -32,13 +32,12 @@ def transferlist_to_a200_strings(tl: TransferList) -> [str]:
             # Then, left shift 1 to the appropriate position in the bytes
             # and or-assign; this sets the bit to one.
             # We subtract from 7 so that the order of the bits is reversed
-            grid[bit_number // 8] |= 1 << (7 - bit_number % 8)
+            grid |= 1 << (23 - bit_number)
 
         grids.append(grid)
 
     # We want to combine the A,B,C grids via bitwise or:
-    abc_grid = bytearray(
-        [x | y | z for (x, y, z) in zip(grids[0], grids[1], grids[2])])
+    abc_grid = grids[0] | grids[1] | grids[2]
 
     # If your plate is full (i.e. every well will then be touched by the a200)
     # then you should be able to verify that A|B|C|D is 8 x 0xFFF
@@ -46,16 +45,16 @@ def transferlist_to_a200_strings(tl: TransferList) -> [str]:
     return [bytes_to_a200_string(abc_grid), bytes_to_a200_string(grids[3])]
 
 
-def bytes_to_a200_string(b: bytearray) -> str:
+def bytes_to_a200_string(b: int) -> str:
     # Grab the first byte and move it over 4 bits
     # so that we have 0bNNNNNNNN0000, then
     # grab the second byte and truncate the 4 least significant bits.
     # Then or these to get a 12 bit result.
-    n1 = b[0] << 4 | (b[1] >> 4)
+    n1 = b >> 12
     # Grab the second bit and mask with 0b00001111 to get the four least
     # significant bits, then shift 8 bits to the left and
     # or with the third bit.
-    n2 = (b[1] & 0x0f) << 8 | b[2]
+    n2 = (b & 0xfff)
 
     strs = [f'{n1:03x}'] * 4 + [f'{n2:03x}'] * 4
 
